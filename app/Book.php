@@ -13,6 +13,7 @@ class Book extends Model implements HasMedia
 
     protected $fillable = [
         'author',
+        'title',
         'isbn',
         'publisher',
         'available',
@@ -22,12 +23,11 @@ class Book extends Model implements HasMedia
         'language',
         'edition',
         'description',
-        'category_id',
         'user_id'
     ];
 
-    public function category() {
-        return $this->hasMany(Category::class);
+    public function categories() {
+        return $this->belongsToMany(Category::class, 'book_category', 'book_id', 'category_id');
     }
 
     public function user() {

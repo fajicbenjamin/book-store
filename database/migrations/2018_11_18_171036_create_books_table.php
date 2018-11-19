@@ -18,7 +18,6 @@ class CreateBooksTable extends Migration
             $table->softDeletes();
 
             $table->unsignedInteger('user_id')->index();
-            $table->unsignedInteger('category_id')->index();
 
             $table->string('author');
             $table->string('title');
@@ -35,8 +34,6 @@ class CreateBooksTable extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')
-                ->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('categories')
                 ->onDelete('cascade');
         });
     }
