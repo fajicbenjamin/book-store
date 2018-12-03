@@ -23,13 +23,13 @@ class CreateBooksTable extends Migration
             $table->string('title');
             $table->string('isbn');
             $table->string('publisher');
-            $table->boolean('available');
+            $table->boolean('available')->default(true);
             $table->string('code');
             $table->unsignedInteger('pages');
             $table->unsignedInteger('price');
             $table->string('language');
             $table->string('edition');
-            $table->text('description');
+            $table->text('description')->nullable();
 
             $table->timestamps();
 

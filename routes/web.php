@@ -17,6 +17,11 @@ Route::get('/', function () {
 
 Route::get('/index', 'BookController@index');
 
+Route::post('/book/create', 'BookController@create');
+Route::post('/book/store', 'BookController@store');
+Route::get('/book/{id}', 'BookController@show');
+Route::put('/book/{id}/edit', 'BookController@update');
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
