@@ -36,7 +36,7 @@ class BookController extends Controller
         $validator = Validator::make($attributes, [
             'author' => 'required|string|max:255',
             'title' => 'required|string|max:255',
-            'isbn' => 'required|string|max:255',
+            'isbn' => 'required|string|max:13',
             'publisher' => 'required|string|max:255',
             'available' => 'sometimes|boolean',
             'pages' => 'required|integer',
@@ -48,10 +48,11 @@ class BookController extends Controller
         ]);
 
         if ($validator->fails()) {
-            dd($validator->errors());
-            return redirect('book/create')
-                ->withErrors($validator)
-                ->withInput();
+            //dd($validator->errors());
+            return response($validator->errors(), Response::HTTP_OK);
+//            return redirect('book/create')
+//                ->withErrors($validator)
+//                ->withInput();
         }
         $attributes['code'] = uniqid();
         //TODO user relacija
