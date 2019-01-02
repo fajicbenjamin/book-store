@@ -14,7 +14,12 @@
                         </div>
                     @endif
 
-                    You are logged in!
+                    <h4>My books</h4>
+                    <ul>
+                        @foreach($books as $book)
+                            <li><a href="{{ '/book/' . $book->id }} " target="_blank">{{$book->title}}</a></li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         </div>

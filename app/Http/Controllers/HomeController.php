@@ -6,14 +6,17 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    protected $bookController;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(BookController $bookController)
     {
         $this->middleware('auth');
+        $this->bookController = $bookController;
     }
 
     /**
@@ -23,6 +26,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $books = $this->bookController->getBooksByUserId(auth()->user()->id);
+        return view('home', ['books' => $books]);
     }
 }

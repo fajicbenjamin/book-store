@@ -1,12 +1,13 @@
 <template>
-    <div class="col-4 offset-4 py-4">
+    <div class="col-sm-12 col-md-4 offset-md-4 py-4">
+        <div class="alert alert-danger" role="alert" v-show="errors.length > 0">
+            <span v-for="error in errors">{{error}}<br></span>
+        </div>
         <form @submit.prevent="submitForm">
             <div class="form-group">
-                <!--<label for="title">Title</label>-->
                 <input v-model="title" type="text" class="form-control" id="title" placeholder="Enter title of the book">
             </div>
             <div class="form-group">
-                <!--<label for="author">Author</label>-->
                 <input v-model="author" type="text" class="form-control" id="author" placeholder="Enter name of the author">
             </div>
             <div class="form-group">
@@ -20,15 +21,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <!--<label for="isbn">ISBN</label>-->
                 <input v-model="isbn" type="text" class="form-control" id="isbn" placeholder="Enter 13-digit ISBN code">
             </div>
             <div class="form-group">
-                <!--<label for="pages">Number of pages</label>-->
                 <input v-model="pages" type="number" class="form-control" id="pages" placeholder="Enter number of pages">
             </div>
             <div class="form-group">
-                <!--<label for="language">Language</label>-->
                 <input v-model="language" type="text" class="form-control" id="language" placeholder="Language of the book">
             </div>
             <div class="form-group">
@@ -39,18 +37,16 @@
                     </div>
                     <div class="col">
                         <div class="form-check">
-                            <input v-model="available" @change="test" type="checkbox" class="form-check-input" id="available">
+                            <input v-model="available" type="checkbox" class="form-check-input" id="available">
                             <label class="form-check-label" for="available">Available</label>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <!--<label for="description">Description</label>-->
                 <textarea v-model="description" class="form-control" id="description" rows="3" placeholder="Description about the book"></textarea>
             </div>
             <div class="form-group">
-                <!--<label for="price">Price</label>-->
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <span class="input-group-text">$</span>
@@ -66,6 +62,7 @@
 <script>
     import axios from 'axios'
     export default {
+        props: ['book'],
         data: function () {
             return {
                 title: '',
@@ -78,17 +75,18 @@
                 available: 0,
                 image: '',
                 description: '',
-                price: null
+                price: null,
+                errors: []
             }
         },
+        created() {
+          if (this.book) {
+              this.fillFields(this.book)
+          }
+        },
         methods: {
-            test() {
-                console.log(this.available)
-            },
             handleImageUpload () {
-                console.log('udje')
                 this.image = this.$refs.file.files[0]
-                console.log(this.image)
             },
             submitForm () {
                 let vm = this
@@ -107,17 +105,44 @@
                 formData.append('price', vm.price)
                 formData.append('image', vm.image)
 
-                axios.post('/book/store', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                })
-                    .then(function (response) {
-                        console.log(response)
+                vm.errors = []
+                let url = '/book/store'
+
+                if (vm.book) {
+                    url = '/book/' + vm.book.id + '/update'
+
+                    axios.post(url, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
                     })
-                    .catch(function(error) {
-                        console.log(error.response.data)
-                    })
+                        .then(function (response) {
+                            if (response.status === 200 || response.status === 201) {
+                                window.location.href = '/book/' + response.data
+                            } else {
+                                console.log(response)
+                            }
+                        })
+                        .catch(function(error) {
+                            for (let prop in error.response.data) {
+                                error.response.data[prop].forEach((iter) => {
+                                    vm.errors.push(iter)
+                                })
+                            }
+                        })
+                }
+            },
+            fillFields(book) {
+                this.title = book.title
+                this.author = book.author
+                this.publisher = book.publisher
+                this.isbn = book.isbn
+                this.pages = book.pages
+                this.language = book.language
+                this.edition = book.edition
+                this.available = book.available
+                this.description = book.description
+                this.price = book.price
             }
         }
     }

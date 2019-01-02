@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Book;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Spatie\MediaLibrary\Models\Media;
 
 class BookController extends Controller
 {
@@ -48,22 +50,19 @@ class BookController extends Controller
         ]);
 
         if ($validator->fails()) {
-            //dd($validator->errors());
-            return response($validator->errors(), Response::HTTP_OK);
-//            return redirect('book/create')
-//                ->withErrors($validator)
-//                ->withInput();
+            return response($validator->errors(), Response::HTTP_BAD_REQUEST);
         }
+
         $attributes['code'] = uniqid();
-        //TODO user relacija
+        $attributes['user_id'] = auth()->user()->id;
+
         //TODO kategorija relacija
-        $attributes['user_id'] = 1;
 
         $book = new Book();
         $book->fill($attributes)->save();
         $this->uploadImage($book, $attributes['image']);
 
-        return response('Successfully stored book', Response::HTTP_CREATED);
+        return response($book->id, Response::HTTP_CREATED);
     }
 
     /**
@@ -77,9 +76,10 @@ class BookController extends Controller
         $book = Book::findOrFail($id);
 
         $image = $book->getFirstMedia('book-images');
-        $imagePath = 'storage/' . $image->id . '/' . $image->file_name;
+        $user = User::findOrFail($book->user_id);
+        $currentUser = auth()->user() ? auth()->user()->id : null;
 
-        return response()->view('book.show', ['book' => $book, 'image' => asset($imagePath)]);
+        return response()->view('book.show', ['book' => $book, 'image' => asset($image->getUrl()), 'user' => $user, 'currentUser' => $currentUser]);
     }
 
     /**
@@ -90,7 +90,9 @@ class BookController extends Controller
      */
     public function edit($id)
     {
-        //
+        $book = Book::findOrFail($id);
+
+        return view('book.edit', ['book' => $book]);
     }
 
     /**
@@ -102,7 +104,38 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $book = Book::findOrFail($id);
+
+        $attributes = $request->all();
+        $validator = Validator::make($attributes, [
+            'author' => 'sometimes|string|max:255',
+            'title' => 'sometimes|string|max:255',
+            'isbn' => 'sometimes|string|max:13',
+            'publisher' => 'sometimes|string|max:255',
+            'available' => 'sometimes|boolean',
+            'pages' => 'sometimes|integer',
+            'price' => 'sometimes|integer',
+            'language' => 'sometimes|string|max:255',
+            'edition' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'file',
+        ]);
+
+        if ($validator->fails()) {
+            return response($validator->errors(), Response::HTTP_OK);
+        }
+
+        //TODO kategorija relacija
+
+        $book->fill($attributes)->save();
+
+        if (isset($attributes['image'])) {
+            $oldImage = $book->getMedia('book-images')[0]->id;
+            Media::destroy($oldImage);
+            $this->uploadImage($book, $attributes['image']);
+        }
+
+        return response($book->id, Response::HTTP_OK);
     }
 
     /**
@@ -120,5 +153,11 @@ class BookController extends Controller
 
     private function uploadImage($book, $image) {
         $book->addMedia($image)->toMediaCollection('book-images');
+    }
+
+    public function getBooksByUserId($user_id) {
+        return Book::with('categories', 'media')
+            ->whereUserId($user_id)
+            ->get();
     }
 }

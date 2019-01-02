@@ -17,10 +17,14 @@ Route::get('/', function () {
 
 Route::get('/index', 'BookController@index');
 
-Route::get('/book/create', 'BookController@create');
-Route::post('/book/store', 'BookController@store');
 Route::get('/book/{id}', 'BookController@show');
-Route::put('/book/{id}/edit', 'BookController@update');
+Route::get('/book/create', 'BookController@create')->middleware('auth');
+Route::post('/book/store', 'BookController@store')->middleware('auth');
+Route::get('/book/{id}/edit', 'BookController@edit')->middleware('auth');
+Route::post('/book/{id}/update', 'BookController@update');
+Route::get('/book/{id}/delete', 'BookController@destroy')->middleware('auth');
+
+Route::get('/user/{id}', 'UserController@showUserBooks');
 
 Auth::routes();
 
