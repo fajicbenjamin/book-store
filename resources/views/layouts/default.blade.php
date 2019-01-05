@@ -4,11 +4,11 @@
     @include('includes.head')
 </head>
 <body>
-<div id="app" class="main-wraps">
-    @include('includes.header')
+    <div id="app" class="main-wraps">
+        @include('includes.header')
 
-    @yield('content')
+        @yield('content')
+    </div>
     @include('includes.footer')
-</div>
 </body>
 </html>

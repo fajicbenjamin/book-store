@@ -22,4 +22,8 @@ class UserController extends Controller
         $books = $this->bookController->getBooksByUserId($id);
         return view('user.show', ['books' => $books]);
     }
+
+    public function showCart() {
+        return view('cart.show');
+    }
 }

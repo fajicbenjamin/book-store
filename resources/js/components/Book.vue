@@ -24,7 +24,7 @@
                     Posted by: <a :href="'/user/' + user.id" target="_blank">{{user.name}}</a><br>
                     {{book.created_at}}
                 </p>
-                <button type="button" class="btn btn-info buy-button">Add to cart <i class="fas fa-shopping-cart"></i></button>
+                <button type="button" class="btn btn-info buy-button" @click="addToCart">Add to cart <i class="fas fa-shopping-cart"></i></button>
             </div>
         </div>
     </div>
@@ -34,8 +34,16 @@
     export default {
         props: ['book', 'image', 'user', 'currentUser'],
         methods: {
-          editBook() {
+            editBook() {
               window.location.href = '/book/' + this.book.id + '/edit'
+            },
+            addToCart() {
+                let oldItems = JSON.parse(localStorage.getItem('books')) || [];
+                oldItems.push(this.book);
+                localStorage.setItem('books', JSON.stringify(oldItems));
+                localStorage.setItem('cartCounter', oldItems.length)
+                // update icon
+                document.getElementById('cartCounter').innerText = localStorage.getItem('cartCounter') || 0;
             }
         },
         created() {
@@ -48,6 +56,8 @@
         -webkit-box-shadow: 10px 10px 20px -6px rgba(0,0,0,0.75);
         -moz-box-shadow: 10px 10px 20px -6px rgba(0,0,0,0.75);
         box-shadow: 10px 10px 20px -6px rgba(0,0,0,0.75);
+        height: auto;
+        max-height: 80vh;
     }
 
     .details {

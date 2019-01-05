@@ -160,4 +160,12 @@ class BookController extends Controller
             ->whereUserId($user_id)
             ->get();
     }
+
+    public function welcomePage() {
+        $books = Book::with('user', 'categories', 'media')
+            ->limit(9)
+            ->get();
+
+        return view('welcome', compact('books'));
+    }
 }
