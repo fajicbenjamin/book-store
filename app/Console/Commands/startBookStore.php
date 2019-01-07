@@ -51,6 +51,5 @@ class startBookStore extends Command
 
         Artisan::call('php artisan voyager:admin admin@admin.com');
         $this->info('Voyager successfully assigned admin account.');
-        }
     }
 }
