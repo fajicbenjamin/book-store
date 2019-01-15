@@ -130,6 +130,26 @@
                                 })
                             }
                         })
+                } else {
+                    axios.post(url, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                        .then(function (response) {
+                            if (response.status === 200 || response.status === 201) {
+                                window.location.href = '/book/' + response.data
+                            } else {
+                                console.log(response)
+                            }
+                        })
+                        .catch(function(error) {
+                            for (let prop in error.response.data) {
+                                error.response.data[prop].forEach((iter) => {
+                                    vm.errors.push(iter)
+                                })
+                            }
+                        })
                 }
             },
             fillFields(book) {
